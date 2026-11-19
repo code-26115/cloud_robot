@@ -1,0 +1,38 @@
+name: Run Robot Framework Tests
+
+on:
+  push:  # 修正：冒號前面不要留空格 ; 當程式碼推送到 main 分支時
+    branches:
+      - main  # 修正 1：原本打成 maun，會導致推送到 main 分支時不觸發
+  pull_request:  # 修正：冒號前面不要留空格 ; 當有真對 main 分支的拉取請求(pull request)時
+    branches:
+      - main
+  schedule:  # 定時觸發(utc時間)
+    - cron: '30 5,17 * * *'  # 修正 2：原本逗號後面多了空格，且少了一個星號，Cron 格式必須是 5 個欄位
+  workflow_dispatch:  # 手動觸發
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # 這裡雖然是用 Linux (Ubuntu) 執行，但測試 Python 程式完全沒問題
+    steps:
+      - name: 取得程式碼  # 修正：原本打成 "取的"
+        uses: actions/checkout@v4
+
+      - name: 設定 python 環境
+        uses: actions/setup-python@v5 # 建議改用 v5，支援最新的 python 3.12 比較不會有警告
+
+      - name: 安裝專案相依套件
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 執行 Robot Framework 測試
+        run: |
+          robot test/  # 指定測試腳本目錄
+
+      - name: 備份測試結果  # 修正：原本打成 "備分"
+        if: always()
+        uses: actions/upload-artifact@v4  # 建議改用 v4，與最新版配合較好
+        with:
+          name: robot-results  # 修正 3：原本打成 rovot-results
+          path: output/  # 修正 4：原本冒號後面沒有空格，會導致語法錯誤 ; 指定你的輸出目錄
