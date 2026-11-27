@@ -34,7 +34,7 @@ jobs:
 
       - name: 執行 Robot Framework 測試
         run: |
-          robot robot_test.robot
+          robot -d output robot_test.robot
 
       - name: 備份測試結果
         if: always()
